@@ -1,25 +1,55 @@
 use error::GitDitWuiError as GDWE;
 use error::*;
-use renderer::types::message::Message;
-use renderer::types::text_block::TextBlock;
-use renderer::types::trailer::Trailer;
+use renderer::types::message::render_message_text;
+use renderer::types::message::render_message_trailer_list;
 
-#[derive(Serialize)]
-pub struct IssueListItem {
-    id: String,
-    initial_message: Message,
-    count_messages: usize,
+use horrorshow::RenderBox;
+use horrorshow::Template;
+
+pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
+    where I: Iterator<Item = &'a ::libgitdit::issue::Issue<'a>>
+{
+    let mut rendered_issues = vec![];
+    for issue in issues {
+        rendered_issues.push(render_issue(issue)?);
+    }
+
+    (html! {
+        html {
+            : ::renderer::render_header();
+            : ::renderer::render_body_pre();
+
+            header {
+                h1: "Issues"
+            }
+
+            @ for issue in rendered_issues {
+                : issue
+            }
+
+            : ::renderer::render_body_post();
+            : ::renderer::render_footer();
+        }
+    }).into_string().map_err(GDWE::from)
 }
 
-impl IssueListItem {
-    pub fn from_issue<'r>(i: &'r ::libgitdit::issue::Issue) -> Result<IssueListItem> {
-        let count = i.messages()?.count();
-        let ini   = i.initial_message().map_err(GDWE::from).and_then(|c| Message::from_message(&c))?;
+fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
+    let id    = format!("{}", i.id());
+    let count = i.messages()?.count();
+    let ini   = i
+        .initial_message()
+        .map_err(GDWE::from)
+        .and_then(|c| render_message_text(&c))?;
 
-        Ok(IssueListItem {
-            id: format!("{}", i.id()),
-            initial_message: ini,
-            count_messages: count,
-        })
-    }
+    Ok(box_html! {
+        div(id = "issue") {
+            div(id = "issue-meta") {
+                p(id = "issue-meta-message-count"): count;
+                p(id = "issue-meta-id"): id;
+            }
+            div(id = "issue-message-text") {
+                : ini
+            }
+        }
+    })
 }

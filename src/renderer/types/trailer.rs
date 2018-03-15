@@ -1,16 +1,11 @@
 use error::*;
+use horrorshow::RenderBox;
 
-#[derive(Serialize)]
-pub struct Trailer {
-    key: String,
-    val: String,
-}
-
-impl Trailer {
-    pub fn from_trailer(t: &::libgitdit::trailer::Trailer) -> Result<Trailer> {
-        Ok(Trailer {
-            key: format!("{}", t.key),
-            val: format!("{}", t.value),
-        })
-    }
+pub fn render_trailer(t: &::libgitdit::trailer::Trailer) -> Result<Box<RenderBox>> {
+    let key = format!("{}", t.key);
+    let val = format!("{}", t.value);
+    Ok(box_html! {
+        div(id = "tailer-key"): key;
+        div(id = "tailer-val"): val;
+    })
 }

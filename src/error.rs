@@ -9,15 +9,10 @@ error_chain! {
 
     foreign_links {
         Io(::std::io::Error);
-        HandlebarsRenderError(::handlebars::RenderError);
-        HandlebarsFileError(::handlebars::TemplateError);
+        Horrorshow(::horrorshow::Error);
     }
 
     errors {
-        HandlebarsTemplateRegister(name: &'static str) {
-            description("Failed to register template")
-                display("Failed to register template '{}'", name)
-        }
     }
 }
 

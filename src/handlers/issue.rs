@@ -3,7 +3,6 @@ use gotham::state::FromState;
 use gotham::http::response::create_response;
 use hyper::{Response, StatusCode};
 use mime;
-use handlebars::Handlebars;
 
 use libgitdit::RepositoryExt;
 use libgitdit::Message;
@@ -11,33 +10,18 @@ use libgitdit::Message;
 use error::*;
 use error::GitDitWuiError as GDWE;
 use middleware::repository::RepositoryMiddlewareData;
-use middleware::handlebars::HandlebarsMiddlewareData;
-use renderer::types::issue::IssueListItem;
 
 pub fn index(mut state: State) -> (State, Response) {
     let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
     let repo_lock = repo.lock().unwrap();
 
-    let hb      = HandlebarsMiddlewareData::borrow_from(&mut state).handlebars();
-    let hb_lock = hb.lock().unwrap();
-
     let (output, statuscode) = repo_lock
         .issues()
         .map_err(GDWE::from)
         .and_then(|issues| {
-            let issues = ::util::sort_commits_by_time(issues).unwrap();
-
-            issues.iter()
-                .map(|i| IssueListItem::from_issue(i))
-                .collect::<Result<Vec<IssueListItem>>>()
-                .and_then(|issues| {
-                    let mut data = ::std::collections::BTreeMap::new();
-                    data.insert("issues", issues);
-                    hb_lock.render("issue_list", &data)
-                        .map_err(GDWE::from)
-                })
-                .map(|s| s.into_bytes())
+            ::renderer::types::issue::render_issues_list(issues.iter())
         })
+        .map(|i| i.into_bytes())
         .map(|x| (x, StatusCode::Ok))
         .unwrap_or_else(|e| {
             (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)

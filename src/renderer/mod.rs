@@ -1,15 +1,10 @@
+pub mod body;
+pub mod footer;
+pub mod header;
 pub mod types;
 
-use handlebars::Handlebars;
+pub use self::footer::render_footer;
+pub use self::header::render_header;
+pub use self::body::render_body_pre;
+pub use self::body::render_body_post;
 
-use error::GitDitWuiErrorKind as GDWEK;
-use error::*;
-
-pub fn get_renderer() -> Result<Handlebars> {
-    let mut hb = Handlebars::new();
-
-    let _ = hb.register_template_string("issue_list", include_str!("../templates/issue_list.hbs"))
-        .chain_err(|| GDWEK::HandlebarsTemplateRegister("issue_list"))?;
-
-    Ok(hb)
-}
