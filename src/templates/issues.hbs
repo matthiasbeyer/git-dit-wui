@@ -1,0 +1,12 @@
+<h1>Issues:</h1>
+
+<ul>
+    {{#each issues}}
+      <li>
+          <a href="/issue?id={{id}}">({{count_messages}} {{id}}</a>
+          <p>
+              {{init_message}}
+          </p>
+      </li>
+    {{/each}}
+</ul>
