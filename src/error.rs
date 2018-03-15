@@ -9,6 +9,7 @@ error_chain! {
 
     foreign_links {
         Io(::std::io::Error);
+        Git(::git2::Error);
         Horrorshow(::horrorshow::Error);
     }
 

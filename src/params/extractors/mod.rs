@@ -1,7 +1,7 @@
 pub mod issue {
     #[derive(Deserialize, StateData, StaticResponseExtender)]
     pub struct IssueIdExtractor {
-        id: String,
+        pub id: String,
     }
 }
 

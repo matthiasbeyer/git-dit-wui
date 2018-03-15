@@ -2,6 +2,7 @@ pub mod body;
 pub mod footer;
 pub mod header;
 pub mod issue;
+pub mod issue_list;
 pub mod message;
 pub mod trailer;
 

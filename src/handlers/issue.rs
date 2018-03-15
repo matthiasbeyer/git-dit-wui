@@ -10,6 +10,7 @@ use libgitdit::Message;
 use error::*;
 use error::GitDitWuiError as GDWE;
 use middleware::repository::RepositoryMiddlewareData;
+use params::extractors::issue::IssueIdExtractor;
 
 pub fn index(mut state: State) -> (State, Response) {
     let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
@@ -19,7 +20,7 @@ pub fn index(mut state: State) -> (State, Response) {
         .issues()
         .map_err(GDWE::from)
         .and_then(|issues| {
-            ::renderer::issue::render_issues_list(issues.iter())
+            ::renderer::issue_list::render_issues_list(issues.iter())
         })
         .map(|i| i.into_bytes())
         .map(|x| (x, StatusCode::Ok))
@@ -37,12 +38,24 @@ pub fn index(mut state: State) -> (State, Response) {
 }
 
 pub fn get_issue_handler(mut state: State) -> (State, Response) {
-    //let repo = RepositoryMiddlewareData::borrow_mut_from(&mut state);
+    let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
+    let repo_lock = repo.lock().unwrap();
+
+    let id_param = IssueIdExtractor::take_from(&mut state).id;
+    let (output, status) = ::git2::Oid::from_str(&id_param)
+        .map_err(GDWE::from)
+        .and_then(|oid| repo_lock.find_issue(oid).map_err(GDWE::from))
+        .and_then(|i| ::renderer::issue::render_issue(&i))
+        .map(|i| i.into_bytes())
+        .map(|x| (x, StatusCode::Ok))
+        .unwrap_or_else(|e| {
+            (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)
+        });
 
     let res = create_response(
         &state,
-        StatusCode::Ok,
-        Some((String::from("Showing an issue!").into_bytes(), mime::TEXT_PLAIN)),
+        status,
+        Some((output, mime::TEXT_HTML)),
     );
 
     (state, res)
