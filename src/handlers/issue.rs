@@ -9,12 +9,17 @@ use libgitdit::RepositoryExt;
 use libgitdit::Message;
 
 use middleware::repository::RepositoryMiddlewareData;
+use middleware::handlebars::HandlebarsMiddlewareData;
 use renderer::types::issue::IssueListItem;
 
 pub fn index(mut state: State) -> (State, Response) {
     let output = {
         let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
         let repo_lock = repo.lock().unwrap();
+
+        let hb      = HandlebarsMiddlewareData::borrow_from(&mut state).handlebars();
+        let hb_lock = hb.lock().unwrap();
+
         let data      = match repo_lock.issues() {
             Ok(issues) => {
                 let data = {
@@ -28,9 +33,7 @@ pub fn index(mut state: State) -> (State, Response) {
                     b
                 };
 
-                let mut reg = Handlebars::new();
-                reg.render_template(include_str!("../templates/issues.hbs"), &data)
-                    .unwrap()
+                hb_lock.render("issue_list", &data).unwrap()
             },
 
             Err(e) => {

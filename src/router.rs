@@ -9,17 +9,26 @@ use gotham::pipeline::single::single_pipeline;
 use gotham::state::State;
 use git2::Repository;
 use hyper::{Get, Head};
+use handlebars::Handlebars;
 
 use params::extractors::issue::IssueIdExtractor;
 use params::extractors::message::MessageIdExtractor;
 use middleware::repository::RepositoryMiddleware;
+use middleware::handlebars::HandlebarsMiddleware;
 
 use handlers;
 
-pub fn router(repo: Repository) -> Router {
-    let repo               = AssertUnwindSafe(Arc::new(Mutex::new(repo)));
-    let middleware         = RepositoryMiddleware::new(repo);
-    let pipeline           = new_pipeline().add(middleware).build();
+pub fn router(repo: Repository, hb: Handlebars) -> Router {
+    let repository            = AssertUnwindSafe(Arc::new(Mutex::new(repo)));
+    let repository_middleware = RepositoryMiddleware::new(repository);
+
+    let handlebars            = AssertUnwindSafe(Arc::new(Mutex::new(hb)));
+    let handlebars_middleware = HandlebarsMiddleware::new(handlebars);
+    let pipeline              = new_pipeline()
+        .add(repository_middleware)
+        .add(handlebars_middleware)
+        .build();
+
     let (chain, pipelines) = single_pipeline(pipeline);
 
     build_router(chain, pipelines, |route| {

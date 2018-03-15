@@ -12,6 +12,10 @@ error_chain! {
     }
 
     errors {
+        HandlebarsTemplateRegister(name: &'static str) {
+            description("Failed to register template")
+                display("Failed to register template '{}'", name)
+        }
     }
 }
 

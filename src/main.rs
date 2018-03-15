@@ -25,7 +25,9 @@ fn main() {
     ::env_logger::init();
     info!("Logger is up");
     let repository = Repository::open(PathBuf::from(".")).unwrap();
+    let handlebars = renderer::get_renderer().unwrap();
+
     let addr = "127.0.0.1:7878";
-    gotham::start(addr, router::router(repository))
+    gotham::start(addr, router::router(repository, handlebars))
 }
 
