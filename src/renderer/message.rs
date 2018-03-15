@@ -1,5 +1,5 @@
 use error::*;
-use renderer::types::trailer::render_trailer;
+use renderer::trailer::render_trailer;
 use horrorshow::RenderBox;
 
 use libgitdit::message::block::Block;

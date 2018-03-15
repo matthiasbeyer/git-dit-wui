@@ -1,7 +1,7 @@
 use error::GitDitWuiError as GDWE;
 use error::*;
-use renderer::types::message::render_message_text;
-use renderer::types::message::render_message_trailer_list;
+use renderer::message::render_message_text;
+use renderer::message::render_message_trailer_list;
 
 use horrorshow::RenderBox;
 use horrorshow::Template;
