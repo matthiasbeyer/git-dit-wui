@@ -9,6 +9,8 @@ error_chain! {
 
     foreign_links {
         Io(::std::io::Error);
+        HandlebarsRenderError(::handlebars::RenderError);
+        HandlebarsFileError(::handlebars::TemplateError);
     }
 
     errors {
