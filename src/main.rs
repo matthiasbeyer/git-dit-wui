@@ -20,6 +20,7 @@ mod middleware;
 mod params;
 mod renderer;
 mod router;
+mod util;
 
 fn main() {
     ::env_logger::init();

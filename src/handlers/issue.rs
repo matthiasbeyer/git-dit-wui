@@ -25,8 +25,10 @@ pub fn index(mut state: State) -> (State, Response) {
         .issues()
         .map_err(GDWE::from)
         .and_then(|issues| {
+            let issues = ::util::sort_commits_by_time(issues).unwrap();
+
             issues.iter()
-                .map(IssueListItem::from_issue)
+                .map(|i| IssueListItem::from_issue(i))
                 .collect::<Result<Vec<IssueListItem>>>()
                 .and_then(|issues| {
                     let mut data = ::std::collections::BTreeMap::new();
