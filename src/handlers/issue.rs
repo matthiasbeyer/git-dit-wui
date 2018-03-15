@@ -9,31 +9,7 @@ use libgitdit::RepositoryExt;
 use libgitdit::Message;
 
 use middleware::repository::RepositoryMiddlewareData;
-
-#[derive(Serialize)]
-struct Issue {
-    id: String,
-    count_messages: usize,
-    init_message: String,
-}
-
-impl Issue {
-    fn from_git(i: ::libgitdit::Issue) -> Result<Self, ()> {
-        let id = format!("{}", i.id());
-        let nm = i.messages()
-            .map(Iterator::count)
-            .unwrap_or(0);
-        let ini = i.initial_message()
-            .map(|ini| ini.message_lines().collect::<Vec<String>>().join("\n"))
-            .unwrap_or_else(|_| String::from("Cannot get initial message"));
-
-        Ok(Issue {
-            id: id,
-            count_messages: nm,
-            init_message: ini,
-        })
-    }
-}
+use renderer::types::issue::IssueListItem;
 
 pub fn index(mut state: State) -> (State, Response) {
     let output = {
@@ -43,10 +19,10 @@ pub fn index(mut state: State) -> (State, Response) {
             Ok(issues) => {
                 let data = {
                     let i = issues
-                        .into_iter()
-                        .map(Issue::from_git)
+                        .iter()
+                        .map(IssueListItem::from_issue)
                         .map(Result::unwrap)
-                        .collect::<Vec<Issue>>();
+                        .collect::<Vec<IssueListItem>>();
                     let mut b = ::std::collections::BTreeMap::new();
                     b.insert("issues", i);
                     b

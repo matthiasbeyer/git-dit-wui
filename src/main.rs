@@ -1,6 +1,7 @@
 #[macro_use] extern crate gotham_derive;
 #[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
+#[macro_use] extern crate error_chain;
 extern crate env_logger;
 extern crate git2;
 extern crate gotham;
@@ -13,9 +14,11 @@ extern crate serde;
 use std::path::PathBuf;
 use git2::Repository;
 
+mod error;
 mod handlers;
 mod middleware;
 mod params;
+mod renderer;
 mod router;
 
 fn main() {

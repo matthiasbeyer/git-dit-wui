@@ -3,9 +3,13 @@
 <ul>
     {{#each issues}}
       <li>
-          <a href="/issue?id={{id}}">({{count_messages}} {{id}}</a>
+          <a href="/issue?id={{id}}">({{count_messages}}) {{id}}</a>
           <p>
-              {{init_message}}
+              {{#each initial_message.blocks}}
+                  <p>
+                      {{text}}
+                  </p>
+              {{/each}}
           </p>
       </li>
     {{/each}}
