@@ -45,7 +45,9 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
         div(id = "issue") {
             div(id = "issue-meta") {
                 p(id = "issue-meta-message-count"): count;
-                p(id = "issue-meta-id"): id;
+                p(id = "issue-meta-id") {
+                    a(href = format!("/issue=id={}", id)): id
+                }
             }
             div(id = "issue-message-text") {
                 : ini
