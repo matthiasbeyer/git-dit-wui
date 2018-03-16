@@ -37,6 +37,7 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                                         th: "Committer Email";
                                         th: "Created";
                                         th: "Messages";
+                                        th: "Status";
                                     }
                                 }
                                 @ for issue in rendered_issues {
@@ -76,6 +77,8 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
         None     => String::from("Time format wrong"),
     };
 
+    let status = ::renderer::issue::render_issue_status(i)?;
+
     Ok(box_html! {
         td {
             a(href = format!("/issue?id={}", id)): id;
@@ -86,6 +89,7 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
         td: committer_email;
         td: created;
         td: count;
+        td: status;
     })
 }
 

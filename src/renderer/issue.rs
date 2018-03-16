@@ -2,6 +2,7 @@ use error::GitDitWuiError as GDWE;
 use error::*;
 use renderer::message::render_message;
 
+use horrorshow::RenderBox;
 use horrorshow::Template;
 
 pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
@@ -16,6 +17,8 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
         .into_iter()
         .map(|m| render_message(&m))
         .collect::<Result<Vec<_>>>()?;
+
+    let status = render_issue_status(i)?;
 
     (html! {
         html {
@@ -36,6 +39,7 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
                                     tr {
                                         th: "Id";
                                         th: "Messages";
+                                        th: "Status";
                                     }
                                 }
                                 tbody {
@@ -44,6 +48,7 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
                                             a(href = format!("/issue?id={}", id)): id;
                                         }
                                         td: count;
+                                        td: status;
                                     }
                                 }
                             }
@@ -63,3 +68,12 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
         }
     }).into_string().map_err(GDWE::from)
 }
+
+pub fn render_issue_status(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
+    if ::util::issue_is_open(i)? {
+        Ok(box_html! { span(class = "tag is-success"): "Open"; })
+    } else {
+        Ok(box_html! { span(class = "tag is-danger"): "Closed"; })
+    }
+}
+
