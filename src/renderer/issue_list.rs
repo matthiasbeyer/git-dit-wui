@@ -15,7 +15,7 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
 
     (html! {
         html {
-            : ::renderer::render_header();
+            : ::renderer::render_header(vec![], vec![]);
             : ::renderer::render_body_pre();
 
             header {

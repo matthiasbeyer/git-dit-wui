@@ -13,7 +13,7 @@ pub fn render_message_page(c: &::git2::Commit) -> Result<String> {
     let rendered_message = render_message(c)?;
     (html! {
         html {
-            : ::renderer::render_header();
+            : ::renderer::render_header(vec![], vec![]);
             : ::renderer::render_body_pre();
 
             div(class = "container") {

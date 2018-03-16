@@ -19,7 +19,7 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
 
     (html! {
         html {
-            : ::renderer::render_header();
+            : ::renderer::render_header(vec![], vec![]);
             : ::renderer::render_body_pre();
 
             div(class = "container") {
