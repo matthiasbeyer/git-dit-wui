@@ -19,7 +19,7 @@ pub fn index(mut state: State) -> (State, Response) {
         .map_err(GDWE::from)
         .and_then(::util::sort_commits_by_time)
         .and_then(|issues| {
-            ::renderer::issue_list::render_issues_list(issues.iter())
+            ::renderer::issue_list::render_issues_list(issues.iter().rev())
         })
         .map(|i| i.into_bytes())
         .map(|x| (x, StatusCode::Ok))

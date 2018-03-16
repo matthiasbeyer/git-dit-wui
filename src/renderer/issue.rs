@@ -13,6 +13,8 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
         messages.push(render_message(&msg?)?);
     }
 
+    let messages = messages.into_iter().rev().collect::<Vec<_>>();
+
     (html! {
         html {
             : ::renderer::render_header();
