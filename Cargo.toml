@@ -1,7 +1,12 @@
 [package]
-name = "git-dit-wui"
-version = "0.1.0"
-authors = ["Matthias Beyer <mail@beyermatthias.de>"]
+name        = "git-dit-wui"
+version     = "0.1.0"
+authors     = ["Matthias Beyer <mail@beyermatthias.de>"]
+description = "Web User Interface (WUI) for the git-dit issue tracker"
+keywords    = ["git", "git-dit", "web"]
+readme      = "README.md"
+license     = "AGPL-3.0"
+repository  = "https://github.com/matthiasbeyer/git-dit-wui"
 
 [dependencies]
 chrono        = "0.4"
