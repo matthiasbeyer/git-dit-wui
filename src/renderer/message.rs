@@ -1,11 +1,32 @@
 use error::*;
+use error::GitDitWuiError as GDWE;
 use renderer::trailer::render_trailer;
 
 use horrorshow::{Raw, RenderBox};
+use horrorshow::Template;
 use comrak::{markdown_to_html, ComrakOptions};
 use chrono::NaiveDateTime;
 use libgitdit::message::block::Block;
 use libgitdit::message::Message;
+
+pub fn render_message_page(c: &::git2::Commit) -> Result<String> {
+    let rendered_message = render_message(c)?;
+    (html! {
+        html {
+            : ::renderer::render_header();
+            : ::renderer::render_body_pre();
+
+            div(class = "container") {
+                div(class = "content") {
+                    : rendered_message;
+                }
+            }
+
+            : ::renderer::render_body_post();
+            : ::renderer::render_footer();
+        }
+    }).into_string().map_err(GDWE::from)
+}
 
 pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
     let id            = format!("{}", c.id());

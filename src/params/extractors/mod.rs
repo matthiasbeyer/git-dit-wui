@@ -8,6 +8,6 @@ pub mod issue {
 pub mod message {
     #[derive(Deserialize, StateData, StaticResponseExtender)]
     pub struct MessageIdExtractor {
-        id: String,
+        pub id: String,
     }
 }
