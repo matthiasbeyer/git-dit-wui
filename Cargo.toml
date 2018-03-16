@@ -8,6 +8,12 @@ readme      = "README.md"
 license     = "AGPL-3.0"
 repository  = "https://github.com/matthiasbeyer/git-dit-wui"
 
+[badges]
+travis-ci                         = { repository = "matthiasbeyer/git-dit-wui" }
+is-it-maintained-issue-resolution = { repository = "matthiasbeyer/git-dit-wui" }
+is-it-maintained-open-issues      = { repository = "matthiasbeyer/git-dit-wui" }
+maintenance                       = { status     = "actively-developed" }
+
 [dependencies]
 chrono        = "0.4"
 comrak        = "0.2"
