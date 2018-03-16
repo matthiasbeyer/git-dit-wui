@@ -20,10 +20,6 @@ pub fn render_index(stats: Stats) -> Result<String> {
                 div(class = "content") {
                     : ::renderer::render_body_pre();
 
-                    header {
-                        h1: "git-dit-wui";
-                    }
-
                     div(class = "tile is-ancestor") {
                         div(class = "tile is-vertical is-3") {
                             div(class = "tile") {
@@ -54,8 +50,8 @@ pub fn render_index(stats: Stats) -> Result<String> {
                         }
 
                         div(class = "tile is-parent is-7") {
-                            article(class = "tile is-child notification is-success") {
-                                p(class = "title"): "Timeline";
+                            article(class = "tile is-child box") {
+                                p(class = "title"): "git-dit-wui";
                             }
                         }
 
