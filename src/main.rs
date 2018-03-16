@@ -3,6 +3,7 @@
 #[macro_use] extern crate horrorshow;
 #[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
+extern crate chrono;
 extern crate comrak;
 extern crate env_logger;
 extern crate git2;

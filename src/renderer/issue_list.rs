@@ -3,6 +3,7 @@ use error::*;
 
 use horrorshow::RenderBox;
 use horrorshow::Template;
+use chrono::NaiveDateTime;
 
 pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
     where I: Iterator<Item = &'a ::libgitdit::issue::Issue<'a>>
@@ -29,6 +30,11 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                                 thead {
                                     tr {
                                         th: "Id";
+                                        th: "Author Name";
+                                        th: "Author Email";
+                                        th: "Committer Name";
+                                        th: "Committer Email";
+                                        th: "Created";
                                         th: "Messages";
                                     }
                                 }
@@ -50,13 +56,32 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
 }
 
 fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
-    let id    = format!("{}", i.id());
-    let count = i.messages()?.count();
+    let id              = format!("{}", i.id());
+    let count           = i.messages()?.count();
+    let initial         = i.initial_message()?;
+
+    let author          = initial.author();
+    let author_name     = String::from(author.name().unwrap_or("Unknown name"));
+    let author_email    = String::from(author.email().unwrap_or("Unknown email"));
+
+    let committer       = initial.committer();
+    let committer_name  = String::from(committer.name().unwrap_or("Unknown name"));
+    let committer_email = String::from(committer.email().unwrap_or("Unknown email"));
+
+    let created        = match NaiveDateTime::from_timestamp_opt(initial.time().seconds(), 0) {
+        Some(ts) => ts.format("%Y-%m-%d %H:%M:%S").to_string(),
+        None     => String::from("Time format wrong"),
+    };
 
     Ok(box_html! {
         td {
             a(href = format!("/issue?id={}", id)): id;
         }
+        td: author_name;
+        td: author_email;
+        td: committer_name;
+        td: committer_email;
+        td: created;
         td: count;
     })
 }

@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Matthias Beyer <mail@beyermatthias.de>"]
 
 [dependencies]
+chrono        = "0.4"
 comrak        = "0.2"
 env_logger    = "0.5"
 error-chain   = "0.10"
