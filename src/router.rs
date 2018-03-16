@@ -10,6 +10,7 @@ use git2::Repository;
 use hyper::{Get, Head};
 
 use params::extractors::issue::IssueIdExtractor;
+use params::extractors::issue::IssueListFilterExtractor;
 use params::extractors::message::MessageIdExtractor;
 use middleware::repository::RepositoryMiddleware;
 
@@ -32,6 +33,7 @@ pub fn router(repo: Repository) -> Router {
 
         route
             .get_or_head("/issues")
+            .with_query_string_extractor::<IssueListFilterExtractor>()
             .to(handlers::issue::index);
 
         route
