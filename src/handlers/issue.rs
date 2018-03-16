@@ -9,17 +9,39 @@ use libgitdit::RepositoryExt;
 use error::GitDitWuiError as GDWE;
 use middleware::repository::RepositoryMiddlewareData;
 use params::extractors::issue::IssueIdExtractor;
+use params::extractors::issue::IssueListFilterExtractor;
+use params::extractors::issue::IssueFilter;
 
 pub fn index(mut state: State) -> (State, Response) {
     let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
     let repo_lock = repo.lock().unwrap();
+
+    let filter = IssueListFilterExtractor::try_take_from(&mut state)
+        .map(|e| e.filter.unwrap_or(IssueFilter::Open))
+        .unwrap_or_else(|| IssueFilter::Open);
+
+    debug!("Filter = {:?}", filter);
 
     let (output, statuscode) = repo_lock
         .issues()
         .map_err(GDWE::from)
         .and_then(::util::sort_issues_by_time)
         .and_then(|issues| {
-            ::renderer::issue_list::render_issues_list(issues.iter().rev())
+            let issues = issues
+                .into_iter()
+                .filter(|issue| {
+                    let value = match filter {
+                        IssueFilter::All    => Ok(true),
+                        IssueFilter::Open   => ::util::issue_is_open(&issue),
+                        IssueFilter::Closed => ::util::issue_is_closed(&issue),
+                    }.unwrap_or(true);
+                    debug!("Issue '{}' => filter: {}", issue.id(), value);
+                    value
+                })
+                .rev()
+                .collect::<Vec<_>>();
+
+            ::renderer::issue_list::render_issues_list(issues.iter())
         })
         .map(|i| i.into_bytes())
         .map(|x| (x, StatusCode::Ok))

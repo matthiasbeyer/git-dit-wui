@@ -6,7 +6,8 @@ pub mod issue {
 
     #[derive(Deserialize, StateData, StaticResponseExtender)]
     pub struct IssueListFilterExtractor {
-        pub filter: IssueFilter,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub filter: Option<IssueFilter>,
     }
 
     #[derive(Deserialize, Clone, Copy, Debug)]
