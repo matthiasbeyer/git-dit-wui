@@ -16,7 +16,6 @@ addons:
             - cmake-data
             - openssl
             - pkg-config
-            - zlib
 matrix:
     allow_failures:
         - rust: nightly
