@@ -6,6 +6,7 @@ use horrorshow::Template;
 use handlers::Stats;
 
 pub fn render_index(stats: Stats) -> Result<String> {
+    let repository_path            = stats.repo_path;
     let mut total_number_issues    = stats.total_number_issues;
     let mut total_number_messages  = stats.total_number_messages;
     let mut authors                = stats.authors.into_iter().collect::<Vec<String>>();
@@ -52,6 +53,10 @@ pub fn render_index(stats: Stats) -> Result<String> {
                         div(class = "tile is-parent is-7") {
                             article(class = "tile is-child box") {
                                 p(class = "title"): "git-dit-wui";
+                                p {
+                                    : "Repository: ";
+                                    : repository_path;
+                                }
                             }
                         }
 

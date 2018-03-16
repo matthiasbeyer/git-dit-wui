@@ -37,6 +37,7 @@ pub fn index(mut state: State) -> (State, Response) {
 }
 
 pub struct Stats {
+    pub repo_path              : String,
     pub total_number_issues    : usize,
     pub total_number_messages  : usize,
     pub date_issue_count_map   : HashMap<NaiveDateTime, usize>,
@@ -76,6 +77,7 @@ fn repo_stats(r: &::git2::Repository) -> Result<Stats> {
     }
 
     Ok(Stats {
+        repo_path              : format!("{}", r.path().to_path_buf().display()),
         total_number_issues    : total_number_issues,
         total_number_messages  : total_number_messages,
         date_issue_count_map   : date_issue_count_map,
