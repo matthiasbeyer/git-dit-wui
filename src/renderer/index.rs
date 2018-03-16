@@ -31,7 +31,8 @@ pub fn render_index(stats: Stats) -> Result<String> {
                                     article(class = "tile is-child notification is-primary") {
                                         p(class = "title") {
                                             : total_number_issues;
-                                            : " Issues"
+                                            : " ";
+                                            a(href = "/issues"): "Issues";
                                         }
                                     }
 
