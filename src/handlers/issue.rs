@@ -17,7 +17,7 @@ pub fn index(mut state: State) -> (State, Response) {
     let (output, statuscode) = repo_lock
         .issues()
         .map_err(GDWE::from)
-        .and_then(::util::sort_commits_by_time)
+        .and_then(::util::sort_issues_by_time)
         .and_then(|issues| {
             ::renderer::issue_list::render_issues_list(issues.iter().rev())
         })

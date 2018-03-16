@@ -8,12 +8,15 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
     let id    = format!("{}", i.id());
     let count = i.messages()?.count();
 
-    let mut messages = vec![];
-    for msg in i.messages()? {
-        messages.push(render_message(&msg?)?);
-    }
+    let messages = i.messages()?
+        .map(|r| r.map_err(GDWE::from))
+        .collect::<Result<_>>()?;
 
-    let messages = messages.into_iter().rev().collect::<Vec<_>>();
+    let messages = ::util::sort_commits_by_time(messages)
+        .into_iter()
+        .rev()
+        .map(|m| render_message(&m))
+        .collect::<Result<Vec<_>>>()?;
 
     (html! {
         html {
