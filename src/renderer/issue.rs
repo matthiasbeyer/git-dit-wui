@@ -20,10 +20,11 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
     (html! {
         html {
             : ::renderer::render_header(vec![], vec![]);
-            : ::renderer::render_body_pre();
 
             div(class = "container") {
                 div(class = "content") {
+                    : ::renderer::render_body_pre();
+
                     header {
                         h1: format!("Issue {}", id);
                     }
@@ -54,10 +55,10 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
                             }
                         }
                     }
+                    : ::renderer::render_body_post();
                 }
             }
 
-            : ::renderer::render_body_post();
             : ::renderer::render_footer();
         }
     }).into_string().map_err(GDWE::from)

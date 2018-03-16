@@ -16,14 +16,15 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
     (html! {
         html {
             : ::renderer::render_header(vec![], vec![]);
-            : ::renderer::render_body_pre();
-
-            header {
-                h1: "Issues"
-            }
 
             div(class = "container") {
                 div(class = "content") {
+                    : ::renderer::render_body_pre();
+
+                    header {
+                        h1: "Issues"
+                    }
+
                     div(id = "issue") {
                         div(id = "table") {
                             table(class = "table is-striped") {
@@ -46,10 +47,12 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                             }
                         }
                     }
+
+                    : ::renderer::render_body_post();
                 }
             }
 
-            : ::renderer::render_body_post();
+
             : ::renderer::render_footer();
         }
     }).into_string().map_err(GDWE::from)

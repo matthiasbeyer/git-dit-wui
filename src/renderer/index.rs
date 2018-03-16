@@ -17,10 +17,11 @@ pub fn render_index(stats: Stats) -> Result<String> {
         html {
             : ::renderer::render_header(vec![],
                                         vec![String::from(::renderer::header::CHART_JS_SRC)]);
-            : ::renderer::render_body_pre();
 
             div(class = "container") {
                 div(class = "content") {
+                    : ::renderer::render_body_pre();
+
                     header {
                         h1: "git-dit-wui";
                     }
@@ -70,10 +71,10 @@ pub fn render_index(stats: Stats) -> Result<String> {
                             }
                         }
                     }
+                    : ::renderer::render_body_post();
                 }
             }
 
-            : ::renderer::render_body_post();
             : ::renderer::render_footer();
         }
     }).into_string().map_err(GDWE::from)
