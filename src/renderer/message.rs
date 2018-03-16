@@ -1,6 +1,7 @@
 use error::*;
 use renderer::trailer::render_trailer;
-use horrorshow::RenderBox;
+use horrorshow::{Raw, RenderBox};
+use comrak::{markdown_to_html, ComrakOptions};
 
 use libgitdit::message::block::Block;
 use libgitdit::message::Message;
@@ -12,7 +13,10 @@ pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
 
     for block in c.body_blocks() {
         match block {
-            Block::Text(mut vec) => text.append(&mut vec),
+            Block::Text(vec) => for element in vec {
+                let buf = markdown_to_html(&element, &ComrakOptions::default());
+                text.push(buf);
+            }
             Block::Trailer(mut vec) => for trailer in vec {
                 trailers.push(render_trailer(&trailer)?);
             },
@@ -30,7 +34,7 @@ pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
                 div(id = "message-text") {
                     @for n in text {
                         p(id = "message-text-block") {
-                            : n
+                            : Raw(n)
                         }
                     }
                 }
@@ -51,15 +55,18 @@ pub fn render_message_text(c: &::libgitdit::message::Message) -> Result<Box<Rend
 
     for block in c.body_blocks() {
         match block {
-            Block::Trailer(_)    => { /* ignore */ }
-            Block::Text(mut vec) => text.append(&mut vec),
+            Block::Trailer(_) => { /* ignore */ }
+            Block::Text(vec)  => for element in vec {
+                let buf = markdown_to_html(&element, &ComrakOptions::default());
+                text.push(buf);
+            },
         }
     };
 
     Ok(box_html! {
         @for n in text {
             p(id = "message-text-block") {
-                : n
+                : Raw(n)
             }
         }
     })
