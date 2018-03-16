@@ -14,15 +14,15 @@ pub fn render_message_page(c: &::git2::Commit) -> Result<String> {
     (html! {
         html {
             : ::renderer::render_header(vec![], vec![]);
-            : ::renderer::render_body_pre();
 
             div(class = "container") {
                 div(class = "content") {
+                    : ::renderer::render_body_pre();
                     : rendered_message;
+                    : ::renderer::render_body_post();
                 }
             }
 
-            : ::renderer::render_body_post();
             : ::renderer::render_footer();
         }
     }).into_string().map_err(GDWE::from)
