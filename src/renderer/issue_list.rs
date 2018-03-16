@@ -25,6 +25,12 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                         h1: "Issues"
                     }
 
+                    div(class = "is-pulled-left") {
+                        a(class = "button is-success", href = "/issues?filter=open"): "Open";
+                        a(class = "button is-danger", href = "/issues?filter=closed"): "Closed";
+                        a(class = "button is-info", href = "/issues?filter=all"): "All";
+                    }
+
                     div(id = "issue") {
                         div(id = "table") {
                             table(class = "table is-striped") {
