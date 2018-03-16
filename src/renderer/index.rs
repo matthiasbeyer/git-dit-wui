@@ -8,8 +8,6 @@ use handlers::Stats;
 pub fn render_index(stats: Stats) -> Result<String> {
     let mut total_number_issues    = stats.total_number_issues;
     let mut total_number_messages  = stats.total_number_messages;
-    let mut date_issue_count_map   = stats.date_issue_count_map;
-    let mut date_message_count_map = stats.date_message_count_map;
     let mut authors                = stats.authors.into_iter().collect::<Vec<String>>();
     let mut author_count           = authors.len();
 
