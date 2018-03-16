@@ -9,10 +9,14 @@ rust:
     - nightly
 addons:
     apt:
-      packages:
-      - openssl
-      - pkg-config
-      - zlib
+        sources:
+            - george-edison55-precise-backports
+        packages:
+            - cmake
+            - cmake-data
+            - openssl
+            - pkg-config
+            - zlib
 matrix:
     allow_failures:
         - rust: nightly
