@@ -16,7 +16,7 @@ Approximately in this order:
     - [x] Show message creation date
 - [ ] Listing all issue authors
 - [ ] Listing all message authors
-- [ ] Frontpage
+- [x] Frontpage
 - [ ] Configuration (file) for
     - [ ] how many issues to show
 - [ ] Meta-information in issues for sorting them by
