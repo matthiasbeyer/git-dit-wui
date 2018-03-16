@@ -8,12 +8,12 @@ Scope: Reading issues. No input. Maybe later.
 
 Approximately in this order:
 
-- [ ] Showing a single issue with replies
-    - [ ] List all issue authors
-    - [ ] List all message authors
-- [ ] Showing a single message
-    - [ ] Show message author
-    - [ ] Show message creation date
+- [x] Showing a single issue with replies
+    - [x] List all issue authors
+    - [x] List all message authors
+- [x] Showing a single message
+    - [x] Show message author
+    - [x] Show message creation date
 - [ ] Listing all issue authors
 - [ ] Listing all message authors
 - [ ] Frontpage
