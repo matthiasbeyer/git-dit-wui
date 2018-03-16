@@ -82,9 +82,17 @@ pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
                     }
                 }
                 ul(id = "message-trailers") {
-                    @ for t in trailers {
-                        li(id = "trailer-list-item") {
-                            : t
+                    table(class = "table is-striped") {
+                        thead {
+                            tr {
+                                th: "Trailer";
+                                th: "Value";
+                            }
+                        }
+                        @ for t in trailers {
+                            tr {
+                                : t;
+                            }
                         }
                     }
                 }
