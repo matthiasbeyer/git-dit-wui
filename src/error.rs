@@ -14,6 +14,10 @@ error_chain! {
     }
 
     errors {
+        NoInitialTimeForIssue(id: String) {
+            description("Cannot find initial time for issue")
+                display("Cannot find initial time for issue {}", id)
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 pub mod body;
 pub mod footer;
 pub mod header;
+pub mod index;
 pub mod issue;
 pub mod issue_list;
 pub mod message;
