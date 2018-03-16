@@ -1,13 +1,23 @@
 use error::*;
 use renderer::trailer::render_trailer;
+
 use horrorshow::{Raw, RenderBox};
 use comrak::{markdown_to_html, ComrakOptions};
-
+use chrono::NaiveDateTime;
 use libgitdit::message::block::Block;
 use libgitdit::message::Message;
 
 pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
-    let id           = format!("{}", c.id());
+    let id            = format!("{}", c.id());
+    let author        = c.author();
+    let author_name   = String::from(author.name().unwrap_or("Unknown name"));
+    let author_email  = String::from(author.email().unwrap_or("Unknown email"));
+    let opt_committer = String::from(c.committer().name().unwrap_or(""));
+    let created       = match NaiveDateTime::from_timestamp_opt(c.time().seconds(), 0) {
+        Some(ts) => ts.format("%Y-%m-%d %H:%M:%S").to_string(),
+        None     => String::from("Time format wrong"),
+    };
+
     let mut text     = vec![];
     let mut trailers = vec![];
 
@@ -26,8 +36,20 @@ pub fn render_message(c: &::git2::Commit) -> Result<Box<RenderBox>> {
     Ok(box_html! {
         div(class = "message") {
             div(class = "message-header") {
-                p {
+                p(class = "is-pulled-left") {
                     a(href = format!("/message?id={}", id)): id;
+                }
+                p(class = "is-pulled-left") {
+                    : author_name;
+                }
+                p(class = "is-pulled-left") {
+                    : author_email;
+                }
+                p(class = "is-pulled-left") {
+                    : opt_committer;
+                }
+                p(class = "is-pulled-right") {
+                    : created;
                 }
             }
             div(class = "message-body") {

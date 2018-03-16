@@ -14,7 +14,6 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
 
     let messages = ::util::sort_commits_by_time(messages)
         .into_iter()
-        .rev()
         .map(|m| render_message(&m))
         .collect::<Result<Vec<_>>>()?;
 
