@@ -51,7 +51,7 @@ pub fn render_message_text(c: &::libgitdit::message::Message) -> Result<Box<Rend
 
     for block in c.body_blocks() {
         match block {
-            Block::Trailer(vec)  => { /* ignore */ }
+            Block::Trailer(_)    => { /* ignore */ }
             Block::Text(mut vec) => text.append(&mut vec),
         }
     };
@@ -70,7 +70,7 @@ pub fn render_message_trailer_list(c: &::libgitdit::message::Message) -> Result<
 
     for block in c.body_blocks() {
         match block {
-            Block::Text(vec)        => { /* ignore */ }
+            Block::Text(_)          => { /* ignore */ }
             Block::Trailer(mut vec) => for trailer in vec {
                 trailers.push(render_trailer(&trailer)?);
             },

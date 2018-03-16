@@ -5,9 +5,7 @@ use hyper::{Response, StatusCode};
 use mime;
 
 use libgitdit::RepositoryExt;
-use libgitdit::Message;
 
-use error::*;
 use error::GitDitWuiError as GDWE;
 use middleware::repository::RepositoryMiddlewareData;
 use params::extractors::issue::IssueIdExtractor;

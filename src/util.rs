@@ -1,12 +1,9 @@
-use std::iter::FromIterator;
-
-use git2::Commit;
 use libgitdit::Issue;
 
 use error::GitDitWuiError as GDWE;
 use error::*;
 
-pub fn sort_commits_by_time<'a, V>(mut v: V) -> Result<Vec<Issue<'a>>>
+pub fn sort_commits_by_time<'a, V>(v: V) -> Result<Vec<Issue<'a>>>
     where V: IntoIterator<Item = Issue<'a>>
 {
     let mut res = vec![];

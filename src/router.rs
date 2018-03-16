@@ -6,7 +6,6 @@ use gotham::router::Router;
 use gotham::router::builder::*;
 use gotham::pipeline::new_pipeline;
 use gotham::pipeline::single::single_pipeline;
-use gotham::state::State;
 use git2::Repository;
 use hyper::{Get, Head};
 

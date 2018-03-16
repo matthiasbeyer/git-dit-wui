@@ -2,7 +2,6 @@ use error::GitDitWuiError as GDWE;
 use error::*;
 use renderer::message::render_message;
 
-use horrorshow::RenderBox;
 use horrorshow::Template;
 
 pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
