@@ -13,6 +13,8 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
         .map(|r| r.map_err(GDWE::from))
         .collect::<Result<_>>()?;
 
+    let issue_header = String::from(i.initial_message()?.summary().unwrap_or("<empty>"));
+
     let messages = ::util::sort_commits_by_time(messages)
         .into_iter()
         .map(|m| render_message(&m))
@@ -29,7 +31,7 @@ pub fn render_issue(i: &::libgitdit::issue::Issue) -> Result<String> {
                     : ::renderer::render_body_pre();
 
                     header {
-                        h1: format!("Issue {}", id);
+                        h1: issue_header;
                     }
 
                     div(id = "issue") {
