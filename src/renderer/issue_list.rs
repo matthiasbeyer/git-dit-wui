@@ -38,10 +38,7 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                                     tr {
                                         th: "Id";
                                         th: "Header";
-                                        th: "Author Name";
-                                        th: "Author Email";
-                                        th: "Committer Name";
-                                        th: "Committer Email";
+                                        th: "Metadata";
                                         th: "Created";
                                         th: "Messages";
                                         th: "Status";
@@ -92,10 +89,38 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
             a(href = format!("/issue?id={}", id)): id;
         }
         td: header;
-        td: author_name;
-        td: author_email;
-        td: committer_name;
-        td: committer_email;
+        td {
+            div(class = "dropdown is-hoverable") {
+                div(class = "dropdown-trigger") {
+                    button(class = "button", aria-haspopup = "true", aria-controls = "dropdown-menu4") {
+                        span(class = "icon is-small") {
+                            i(class = "fas fa-angle-down", aria-hidden = "true") {
+                            }
+                        }
+                    }
+                }
+                div(class = "dropdown-menu", id = "dropdown-menu4", role = "menu") {
+                    div(class = "dropdown-content") {
+                        div(class = "dropdown-item") {
+                            p {
+                                : "Author: ";
+                                : author_name;
+                                : " : ";
+                                : author_email;
+                            }
+                        }
+                        div(class = "dropdown-item") {
+                            p {
+                                : "Committer: ";
+                                : committer_name;
+                                : " : ";
+                                : committer_email;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         td: created;
         td: count;
         td: status;
