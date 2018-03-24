@@ -54,7 +54,7 @@ pub fn issue_is_open<'a>(i: &Issue<'a>) -> Result<bool> {
         }
     }
 
-    return Ok(false);
+    return Ok(true);
 }
 
 pub fn issue_is_closed<'a>(i: &Issue<'a>) -> Result<bool> {
