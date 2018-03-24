@@ -37,6 +37,7 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
                                 thead {
                                     tr {
                                         th: "Id";
+                                        th: "Header";
                                         th: "Author Name";
                                         th: "Author Email";
                                         th: "Committer Name";
@@ -70,6 +71,7 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
     let count           = i.messages()?.count();
     let initial         = i.initial_message()?;
 
+    let header          = String::from(initial.summary().unwrap_or("<empty>"));
     let author          = initial.author();
     let author_name     = String::from(author.name().unwrap_or("Unknown name"));
     let author_email    = String::from(author.email().unwrap_or("Unknown email"));
@@ -89,6 +91,7 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
         td {
             a(href = format!("/issue?id={}", id)): id;
         }
+        td: header;
         td: author_name;
         td: author_email;
         td: committer_name;
