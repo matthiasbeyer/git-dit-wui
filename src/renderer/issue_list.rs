@@ -65,6 +65,7 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
 
 fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
     let id              = format!("{}", i.id());
+    let short_id        = id.chars().take(10).collect::<String>();
     let count           = i.messages()?.count();
     let initial         = i.initial_message()?;
 
@@ -86,7 +87,7 @@ fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
 
     Ok(box_html! {
         td {
-            a(href = format!("/issue?id={}", id)): id;
+            a(href = format!("/issue?id={}", id)): short_id;
         }
         td: header;
         td {
