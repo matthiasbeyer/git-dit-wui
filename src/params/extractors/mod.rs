@@ -25,3 +25,10 @@ pub mod message {
         pub id: String,
     }
 }
+
+pub mod update {
+    #[derive(Deserialize, StateData, StaticResponseExtender)]
+    pub struct UpdateFlagExtractor {
+        pub update: Option<bool>,
+    }
+}

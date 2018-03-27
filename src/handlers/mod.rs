@@ -3,44 +3,77 @@ use std::collections::HashSet;
 
 use gotham::state::State;
 use gotham::state::FromState;
+use gotham::handler::HandlerFuture;
+use gotham::handler::IntoHandlerError;
 use gotham::http::response::create_response;
 use hyper::{Response, StatusCode};
 use mime;
 use chrono::NaiveDateTime;
 use libgitdit::RepositoryExt;
+use futures::Future;
 
 use middleware::repository::RepositoryMiddlewareData;
 use middleware::cache::CacheMiddlewareData;
+use params::extractors::update::UpdateFlagExtractor;
 use error::GitDitWuiErrorKind as GDWEK;
 use error::*;
 
 pub mod issue;
 pub mod message;
 
-pub fn index(mut state: State) -> (State, Response) {
+pub fn index(mut state: State) -> Box<HandlerFuture> {
+    info!("Index...");
     let path = {
         let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
         let repo_lock = repo.lock().unwrap();
         format!("{}", repo_lock.path().to_path_buf().display())
     };
 
-    let (output, status) = {
-        let cache = CacheMiddlewareData::borrow_mut_from(&mut state);
-        repo_stats(path, &cache)
-            .and_then(::renderer::index::render_index)
-            .map(|s| (s, StatusCode::Ok))
-            .unwrap_or_else(|e| {
-                (format!("Failed to process main page: {:?}", e), StatusCode::InternalServerError)
-            })
-    };
+    let cache_is_initialized = CacheMiddlewareData::borrow_from(&state).is_initialized();
 
-    let res = create_response(
-        &state,
-        status,
-        Some((output.into_bytes(), mime::TEXT_HTML)),
-    );
+    let do_update_cache = !cache_is_initialized || UpdateFlagExtractor::try_take_from(&mut state)
+        .map(|e| e.update.unwrap_or(false))
+        .unwrap_or(false);
 
-    (state, res)
+    info!("Do update cache: {}", do_update_cache);
+
+    let fut = ::futures::future::ok(())
+        .and_then(move |_: ()| {
+            let mut state = state;
+            if do_update_cache {
+                info!("Aggregating cache before using");
+                match CacheMiddlewareData::borrow_from(&state).update() {
+                    Ok(_)  => Ok(state),
+                    Err(e) => Err((state, e.into_handler_error())),
+                }
+            } else {
+                info!("Not aggregating cache before using it");
+                Ok(state)
+            }
+        })
+        .map(|mut state| {
+            let (output, status) = {
+                let cache = CacheMiddlewareData::borrow_mut_from(&mut state);
+                info!("Collecting repo statistics");
+                repo_stats(path, &cache)
+                    .and_then(::renderer::index::render_index)
+                    .map(|s| (s, StatusCode::Ok))
+                    .unwrap_or_else(|e| {
+                        (format!("Failed to process main page: {:?}", e), StatusCode::InternalServerError)
+                    })
+            };
+
+            info!("Creating response");
+            let res = create_response(
+                &state,
+                status,
+                Some((output.into_bytes(), mime::TEXT_HTML)),
+            );
+
+            (state, res)
+        });
+
+    Box::new(fut)
 }
 
 pub struct Stats {

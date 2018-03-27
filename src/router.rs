@@ -12,6 +12,7 @@ use hyper::{Get, Head};
 use params::extractors::issue::IssueIdExtractor;
 use params::extractors::issue::IssueListFilterExtractor;
 use params::extractors::message::MessageIdExtractor;
+use params::extractors::update::UpdateFlagExtractor;
 use middleware::repository::RepositoryMiddleware;
 use middleware::cache::CacheMiddleware;
 

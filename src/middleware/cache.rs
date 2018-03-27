@@ -63,6 +63,7 @@ impl Issue {
 }
 
 struct Cache {
+    is_initialized: bool,
     issues: Vec<Issue>,
     number_of_messages: usize,
 }
@@ -70,9 +71,14 @@ struct Cache {
 impl Cache {
     fn new() -> Cache {
         Cache {
+            is_initialized: false,
             issues: vec![],
             number_of_messages: 0,
         }
+    }
+
+    fn set_initialized(&mut self) {
+        self.is_initialized = true;
     }
 
     fn set_issues(&mut self, issues: Vec<Issue>) {
@@ -164,58 +170,53 @@ pub struct CacheMiddlewareData {
 
 impl CacheMiddlewareData {
 
-    pub fn update(&self) -> Box<Future<Item = (), Error = GDWE>> {
-        let repo  = self.repo.clone();
-        let cache = self.cache.clone();
+    pub fn update(&self) -> Result<()> {
+        let repo     = self.repo.clone();
+        let cache    = self.cache.clone();
+        let repolock = repo.lock().unwrap();
 
-        let fut = ::futures::future::empty()
-            .and_then(move |_: ()| {
-                let repolock  = repo.lock().unwrap();
+        let mut number_of_messages_overall = 0;
+        let mut issues = vec![];
 
-                let mut number_of_messages_overall = 0;
-                let mut issues = vec![];
+        for issue in repolock.issues()? {
+            let imsg            = issue.initial_message()?;
+            let id              = format!("{}", issue.id());
+            let auth            = imsg.author();
+            let author_name     = String::from(auth.name().unwrap_or("Unknown author"));
+            let author_email    = String::from(auth.email().unwrap_or("Unknown author"));
+            let commi           = imsg.committer();
+            let committer_name  = String::from(commi.name().unwrap_or("Unknown committer"));
+            let committer_email = String::from(commi.email().unwrap_or("Unknown committer"));
+            let created         = time_for_commit(&imsg)?;
+            let is_open         = ::util::issue_is_open(&issue)?;
+            let mut n_msgs      = 0;
 
-                for issue in repolock.issues()? {
-                    let imsg            = issue.initial_message()?;
-                    let id              = format!("{}", issue.id());
-                    let auth            = imsg.author();
-                    let author_name     = String::from(auth.name().unwrap_or("Unknown author"));
-                    let author_email    = String::from(auth.email().unwrap_or("Unknown author"));
-                    let commi           = imsg.committer();
-                    let committer_name  = String::from(commi.name().unwrap_or("Unknown committer"));
-                    let committer_email = String::from(commi.email().unwrap_or("Unknown committer"));
-                    let created         = time_for_commit(&imsg)?;
-                    let is_open         = ::util::issue_is_open(&issue)?;
-                    let mut n_msgs      = 0;
+            for mess in issue.messages()? {
+                let _mess = mess?;
+                n_msgs                     += 1;
+                number_of_messages_overall += 1;
+            }
 
-                    for mess in issue.messages()? {
-                        let _mess = mess?;
-                        n_msgs                     += 1;
-                        number_of_messages_overall += 1;
-                    }
-
-                    issues.push(Issue {
-                        id,
-                        author_name,
-                        author_email,
-                        committer_name,
-                        committer_email,
-                        date: created,
-                        is_open,
-                        number_of_messages: n_msgs,
-                    });
-                }
-
-                {
-                    let mut cachelock = cache.lock().unwrap();
-                    cachelock.set_issues(issues);
-                    cachelock.set_number_of_messages(number_of_messages_overall);
-                }
-
-                Ok(())
+            issues.push(Issue {
+                id,
+                author_name,
+                author_email,
+                committer_name,
+                committer_email,
+                date: created,
+                is_open,
+                number_of_messages: n_msgs,
             });
+        }
 
-        Box::new(fut)
+        {
+            let mut cachelock = cache.lock().unwrap();
+            cachelock.set_issues(issues);
+            cachelock.set_number_of_messages(number_of_messages_overall);
+            cachelock.set_initialized();
+        }
+
+        Ok(())
     }
 
     pub fn number_of_opened_issues(&self) -> usize {
@@ -315,6 +316,11 @@ impl CacheMiddlewareData {
         let cachelock = self.cache.lock().unwrap();
         let issues    = cachelock.issues.clone();
         issues
+    }
+
+    pub fn is_initialized(&self) -> bool {
+        let cachelock = self.cache.lock().unwrap();
+        cachelock.is_initialized
     }
 
 }
