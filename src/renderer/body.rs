@@ -7,6 +7,7 @@ pub fn render_body_pre() -> Box<RenderBox> {
                 div(class = "navbar-start") {
                     a(class = "navbar-item", href = "/"): "Home";
                     a(class = "navbar-item", href = "/issues"): "Issues";
+                    a(class = "navbar-item", href = "/?update=true"): "Update cache";
                 }
             }
         }
