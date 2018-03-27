@@ -6,11 +6,11 @@ use horrorshow::Template;
 use handlers::Stats;
 
 pub fn render_index(stats: Stats) -> Result<String> {
-    let repository_path            = stats.repo_path;
-    let mut total_number_issues    = stats.total_number_issues;
-    let mut total_number_messages  = stats.total_number_messages;
-    let mut authors                = stats.authors.into_iter().collect::<Vec<String>>();
-    let mut author_count           = authors.len();
+    let repository_path       = stats.repo_path;
+    let total_number_issues   = stats.total_number_issues;
+    let total_number_messages = stats.total_number_messages;
+    let authors               = stats.authors.into_iter().collect::<Vec<String>>();
+    let author_count          = authors.len();
 
     (html! {
         html {

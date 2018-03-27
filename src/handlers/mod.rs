@@ -6,16 +6,14 @@ use gotham::state::FromState;
 use gotham::handler::HandlerFuture;
 use gotham::handler::IntoHandlerError;
 use gotham::http::response::create_response;
-use hyper::{Response, StatusCode};
+use hyper::StatusCode;
 use mime;
 use chrono::NaiveDateTime;
-use libgitdit::RepositoryExt;
 use futures::Future;
 
 use middleware::repository::RepositoryMiddlewareData;
 use middleware::cache::CacheMiddlewareData;
 use params::extractors::update::UpdateFlagExtractor;
-use error::GitDitWuiErrorKind as GDWEK;
 use error::*;
 
 pub mod issue;
@@ -39,7 +37,7 @@ pub fn index(mut state: State) -> Box<HandlerFuture> {
 
     let fut = ::futures::future::ok(())
         .and_then(move |_: ()| {
-            let mut state = state;
+            let state = state; // rebind for lifetimes
             if do_update_cache {
                 info!("Aggregating cache before using");
                 match CacheMiddlewareData::borrow_from(&state).update() {

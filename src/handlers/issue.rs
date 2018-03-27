@@ -4,8 +4,6 @@ use gotham::http::response::create_response;
 use hyper::{Response, StatusCode};
 use mime;
 
-use libgitdit::RepositoryExt;
-
 use error::GitDitWuiError as GDWE;
 use middleware::cache::CacheMiddlewareData;
 use middleware::repository::RepositoryMiddlewareData;

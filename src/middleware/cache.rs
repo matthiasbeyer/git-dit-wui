@@ -3,7 +3,6 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::collections::HashSet;
 
-use futures::future::Future;
 use git2::Oid;
 use git2::Repository;
 use libgitdit::RepositoryExt;
@@ -14,7 +13,6 @@ use gotham::state::State;
 use chrono::NaiveDateTime;
 
 use error::Result;
-use error::GitDitWuiError as GDWE;
 use error::GitDitWuiErrorKind as GDWEK;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

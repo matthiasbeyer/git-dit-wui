@@ -3,7 +3,6 @@ use error::*;
 
 use horrorshow::RenderBox;
 use horrorshow::Template;
-use chrono::NaiveDateTime;
 
 pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
     where I: Iterator<Item = &'a ::middleware::cache::Issue>
