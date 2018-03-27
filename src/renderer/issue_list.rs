@@ -3,14 +3,13 @@ use error::*;
 
 use horrorshow::RenderBox;
 use horrorshow::Template;
-use chrono::NaiveDateTime;
 
 pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
-    where I: Iterator<Item = &'a ::libgitdit::issue::Issue<'a>>
+    where I: Iterator<Item = &'a ::middleware::cache::Issue>
 {
     let mut rendered_issues = vec![];
     for issue in issues {
-        rendered_issues.push(render_issue(issue)?);
+        rendered_issues.push(render_issue(&issue)?);
     }
 
     (html! {
@@ -63,25 +62,18 @@ pub fn render_issues_list<'a, I>(issues: I) -> Result<String>
     }).into_string().map_err(GDWE::from)
 }
 
-fn render_issue(i: &::libgitdit::issue::Issue) -> Result<Box<RenderBox>> {
+fn render_issue(i: &::middleware::cache::Issue) -> Result<Box<RenderBox>> {
     let id              = format!("{}", i.id());
     let short_id        = id.chars().take(10).collect::<String>();
-    let count           = i.messages()?.count();
-    let initial         = i.initial_message()?;
-
-    let header          = String::from(initial.summary().unwrap_or("<empty>"));
-    let author          = initial.author();
-    let author_name     = String::from(author.name().unwrap_or("Unknown name"));
-    let author_email    = String::from(author.email().unwrap_or("Unknown email"));
-
-    let committer       = initial.committer();
-    let committer_name  = String::from(committer.name().unwrap_or("Unknown name"));
-    let committer_email = String::from(committer.email().unwrap_or("Unknown email"));
-
-    let created        = match NaiveDateTime::from_timestamp_opt(initial.time().seconds(), 0) {
-        Some(ts) => ts.format("%Y-%m-%d %H:%M:%S").to_string(),
-        None     => String::from("Time format wrong"),
-    };
+    let count           = i.number_of_messages();
+    let header          = i.title().clone();
+    let author_name     = i.author_name().clone();
+    let author_email    = i.author_email().clone();
+    let committer_name  = i.committer_name().clone();
+    let committer_email = i.committer_email().clone();
+    let created         = i.date()
+        .format("%Y-%m-%d %H:%M:%S")
+        .to_string();
 
     let status = ::renderer::issue::render_issue_status(i)?;
 

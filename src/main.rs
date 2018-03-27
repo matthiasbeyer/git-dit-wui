@@ -12,6 +12,7 @@ extern crate hyper;
 extern crate libgitdit;
 extern crate mime;
 extern crate serde;
+extern crate futures;
 
 use std::path::PathBuf;
 use git2::Repository;
