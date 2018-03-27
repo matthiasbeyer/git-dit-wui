@@ -177,6 +177,7 @@ pub struct CacheMiddlewareData {
     cache: Arc<Mutex<Cache>>,
 }
 
+#[allow(unused)]
 impl CacheMiddlewareData {
 
     pub fn update(&self) -> Result<()> {
