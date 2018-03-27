@@ -13,15 +13,18 @@ use params::extractors::issue::IssueIdExtractor;
 use params::extractors::issue::IssueListFilterExtractor;
 use params::extractors::message::MessageIdExtractor;
 use middleware::repository::RepositoryMiddleware;
+use middleware::cache::CacheMiddleware;
 
 use handlers;
 
 pub fn router(repo: Repository) -> Router {
-    let repository            = AssertUnwindSafe(Arc::new(Mutex::new(repo)));
-    let repository_middleware = RepositoryMiddleware::new(repository);
+    let repo                  = Arc::new(Mutex::new(repo));
+    let cache_middleware      = CacheMiddleware::new(AssertUnwindSafe(repo.clone()));
+    let repository_middleware = RepositoryMiddleware::new(AssertUnwindSafe(repo));
 
     let pipeline              = new_pipeline()
         .add(repository_middleware)
+        .add(cache_middleware)
         .build();
 
     let (chain, pipelines) = single_pipeline(pipeline);
