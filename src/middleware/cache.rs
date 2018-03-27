@@ -4,6 +4,7 @@ use std::sync::Mutex;
 use std::collections::HashSet;
 
 use futures::future::Future;
+use git2::Oid;
 use git2::Repository;
 use libgitdit::RepositoryExt;
 use gotham::middleware::Middleware;
@@ -26,11 +27,17 @@ pub struct Issue {
     date: NaiveDateTime,
     is_open: bool,
     number_of_messages: usize,
+    messages: Vec<Oid>,
+    title: String,
 }
 
 impl Issue {
     pub fn id(&self) -> &String {
         &self.id
+    }
+
+    pub fn message_ids(&self) -> &Vec<Oid> {
+        &self.messages
     }
 
     pub fn author_name(&self) -> &String {
@@ -59,6 +66,10 @@ impl Issue {
 
     pub fn number_of_messages(&self) -> usize {
         self.number_of_messages
+    }
+
+    pub fn title(&self) -> &String {
+        &self.title
     }
 }
 
@@ -190,11 +201,14 @@ impl CacheMiddlewareData {
             let created         = time_for_commit(&imsg)?;
             let is_open         = ::util::issue_is_open(&issue)?;
             let mut n_msgs      = 0;
+            let mut messages    = vec![];
+            let title           = String::from(imsg.summary().unwrap_or("No title"));
 
             for mess in issue.messages()? {
-                let _mess = mess?;
+                let mess = mess?;
                 n_msgs                     += 1;
                 number_of_messages_overall += 1;
+                messages.push(mess.id());
             }
 
             issues.push(Issue {
@@ -206,6 +220,8 @@ impl CacheMiddlewareData {
                 date: created,
                 is_open,
                 number_of_messages: n_msgs,
+                messages,
+                title,
             });
         }
 
@@ -316,6 +332,12 @@ impl CacheMiddlewareData {
         let cachelock = self.cache.lock().unwrap();
         let issues    = cachelock.issues.clone();
         issues
+    }
+
+    pub fn issue(&self, oid: Oid) -> Option<Issue> {
+        let oid = format!("{}", oid);
+        let cachelock = self.cache.lock().unwrap();
+        cachelock.issues.iter().find(|i| i.id == oid).map(Clone::clone)
     }
 
     pub fn is_initialized(&self) -> bool {

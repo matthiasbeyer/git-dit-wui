@@ -7,14 +7,13 @@ use mime;
 use libgitdit::RepositoryExt;
 
 use error::GitDitWuiError as GDWE;
+use middleware::cache::CacheMiddlewareData;
 use middleware::repository::RepositoryMiddlewareData;
 use params::extractors::issue::IssueIdExtractor;
 use params::extractors::issue::IssueListFilterExtractor;
 use params::extractors::issue::IssueFilter;
 
 pub fn index(mut state: State) -> (State, Response) {
-    let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
-    let repo_lock = repo.lock().unwrap();
 
     let filter = IssueListFilterExtractor::try_take_from(&mut state)
         .map(|e| e.filter.unwrap_or(IssueFilter::Open))
@@ -22,32 +21,31 @@ pub fn index(mut state: State) -> (State, Response) {
 
     debug!("Filter = {:?}", filter);
 
-    let (output, statuscode) = repo_lock
-        .issues()
-        .map_err(GDWE::from)
-        .and_then(::util::sort_issues_by_time)
-        .and_then(|issues| {
-            let issues = issues
-                .into_iter()
-                .filter(|issue| {
-                    let value = match filter {
-                        IssueFilter::All    => Ok(true),
-                        IssueFilter::Open   => ::util::issue_is_open(&issue),
-                        IssueFilter::Closed => ::util::issue_is_closed(&issue),
-                    }.unwrap_or(true);
-                    debug!("Issue '{}' => filter: {}", issue.id(), value);
-                    value
-                })
-                .rev()
-                .collect::<Vec<_>>();
+    let (output, statuscode) = {
+        let cache = CacheMiddlewareData::borrow_from(&state);
+        let mut issues = cache.issues();
+        issues.sort_by_key(|i| *i.date());
+        let issues = issues
+            .into_iter()
+            .filter(|issue| {
+                let value = match filter {
+                    IssueFilter::All    => true,
+                    IssueFilter::Open   => issue.is_open(),
+                    IssueFilter::Closed => !issue.is_open(),
+                };
+                debug!("Issue '{}' => filter: {}", issue.id(), value);
+                value
+            })
+            .rev()
+            .collect::<Vec<_>>();
 
-            ::renderer::issue_list::render_issues_list(issues.iter())
-        })
-        .map(|i| i.into_bytes())
-        .map(|x| (x, StatusCode::Ok))
-        .unwrap_or_else(|e| {
-            (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)
-        });
+        ::renderer::issue_list::render_issues_list(issues.iter())
+            .map(|i| i.into_bytes())
+            .map(|x| (x, StatusCode::Ok))
+            .unwrap_or_else(|e| {
+                (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)
+            })
+    };
 
     let res = create_response(
         &state,
@@ -59,19 +57,28 @@ pub fn index(mut state: State) -> (State, Response) {
 }
 
 pub fn get_issue_handler(mut state: State) -> (State, Response) {
-    let repo      = RepositoryMiddlewareData::borrow_mut_from(&mut state).repo();
+    let repo = RepositoryMiddlewareData::borrow_from(&state).repo();
     let repo_lock = repo.lock().unwrap();
 
     let id_param = IssueIdExtractor::take_from(&mut state).id;
-    let (output, status) = ::git2::Oid::from_str(&id_param)
-        .map_err(GDWE::from)
-        .and_then(|oid| repo_lock.find_issue(oid).map_err(GDWE::from))
-        .and_then(|i| ::renderer::issue::render_issue(&i))
-        .map(|i| i.into_bytes())
-        .map(|x| (x, StatusCode::Ok))
-        .unwrap_or_else(|e| {
-            (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)
-        });
+    let (output, status) = {
+        let cache = CacheMiddlewareData::borrow_from(&state);
+        ::git2::Oid::from_str(&id_param)
+            .map_err(GDWE::from)
+            .map(|oid| (cache.issue(oid), oid))
+            .and_then(|(i, oid)| {
+                if let Some(i) = i {
+                    ::renderer::issue::render_issue(&i, &repo_lock)
+                } else {
+                    ::renderer::issue::render_issue_not_found(format!("{}", oid))
+                }
+            })
+            .map(|i| i.into_bytes())
+            .map(|x| (x, StatusCode::Ok))
+            .unwrap_or_else(|e| {
+                (format!("Error: {:?}", e).into_bytes(), StatusCode::InternalServerError)
+            })
+    };
 
     let res = create_response(
         &state,
