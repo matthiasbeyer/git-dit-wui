@@ -33,6 +33,7 @@ pub fn router(repo: Repository) -> Router {
     build_router(chain, pipelines, |route| {
         route
             .request(vec![Get, Head], "/")
+            .with_query_string_extractor::<UpdateFlagExtractor>()
             .to(handlers::index);
 
         route
